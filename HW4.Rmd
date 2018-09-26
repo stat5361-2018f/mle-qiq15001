@@ -1,0 +1,30 @@
+---
+title: "HW4"
+author: "Qi Qi"
+date: "9/25/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 3.3.2
+
+1.
+
+$$f(x;\theta)=\frac{1-cos(x-\theta)}{2\pi}$$
+$$\ell=\sum_{i=1}^nlogf(x_i;\theta)=\sum_{i=1}^nlog(1-cos(x_i-\theta))-nlog(2\pi)$$
+```{r}
+x <- c(3.91, 4.85, 2.28, 4.06, 3.70, 4.04, 5.46, 3.53, 2.28, 1.96,
+       2.53, 3.88, 2.22, 3.47, 4.82, 2.46, 2.99, 2.54, 0.52)
+logL <- function(theta) {
+  sum(log(1 - cos(x - theta))-log(2 * pi))
+}
+theta <- seq(-pi , pi , by = .01)
+logl <- sapply(theta, logL)
+plot(theta, logl)
+
+
+
+```
