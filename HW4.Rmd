@@ -84,6 +84,38 @@ aggregate(init ~ apprmle, data = tab, FUN = function(x) c(min = min(x), maxi = m
 ```
 
 
+# Exercise 3.3.3
 
+1.
 
+```{r}
+beetles <- data.frame(
+    days    = c(0,  8,  28,  41,  63,  69,   97, 117,  135,  154),
+    beetles = c(2, 47, 192, 256, 768, 896, 1120, 896, 1184, 1024))
+
+growth <- nls(beetles ~ K * beetles[which(days == 0)] / (beetles[which(days == 0)] + (K - beetles[which(days == 0)]) * exp(- r * days)), data = beetles, start = list(r = .15, K = 1000), trace=TRUE)
+summary(growth)
+
+```
+
+2.
+
+I set r and K as the values in the trace of previous iteration. The sum squared errors are also obtained from previous iteration.
+
+```{r}
+
+r <- c(0.15, 0.1275481, 0.1197121, 0.1185102, 0.1183094, 0.1182753, 0.1182696, 0.1182686)
+K <- c(1000, 1005.5576477, 1039.3710445, 1048.3579593, 1049.2521408, 1049.3815481, 1049.4029151, 1049.4065121)
+
+error <- c(164487.9, 86407.24, 73936.64, 73430.59, 73420.01, 73419.71, 73419.7, 73419.7)
+
+z <-  cbind(r, K, error)
+x <-  seq(min(r), max(r), length.out = nrow(z))
+y <-  seq(min(K), max(K), length.out = ncol(z))
+
+contour(x, y, z, xlab = "r", ylab = "K")
+
+```
+
+3.
 
