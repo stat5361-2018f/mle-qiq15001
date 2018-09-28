@@ -36,9 +36,9 @@ $$\Rightarrow \bar{X}_n=\pi+\sin\tilde{\theta}_n \ \Rightarrow \tilde{\theta}_n=
 
 3.
 
-$$\ell'=\sum_{i=1}^n\frac{\sin(x_i-\theta)}{1-\cos(x_i-\theta)}$$
-$$\ell''=\sum_{i=1}^n\frac{\cos(x_i-\theta)[1-\cos(x_i-\theta)]-[\sin(x_i-\theta)]^2}{[1-\cos(x_i-\theta)]^2}$$
-$$=\sum_{i=1}^n\frac{\cos(x_i-\theta)-1}{[1-\cos(x_i-\theta)]^2}=\sum_{i=1}^n\frac{1}{\cos(x_i-\theta)-1}$$
+$$\ell'=\sum_{i=1}^n\frac{\sin(\theta-x_i)}{1-\cos(\theta-x_i)}$$
+$$\ell''=\sum_{i=1}^n\frac{\cos(\theta-x_i)[1-\cos(\theta-x_i)]-[\sin(\theta-x_i)]^2}{[1-\cos(\theta-x_i)]^2}$$
+$$=\sum_{i=1}^n\frac{\cos(\theta-x_i)-1}{[1-\cos(\theta-x_i)]^2}=\sum_{i=1}^n\frac{1}{\cos(\theta-x_i)-1}$$
 
 ```{r}
 init <- asin(mean(x) - pi)
@@ -60,3 +60,30 @@ newton<- function(fun, dfun, x0, eps, maxit){
 newton(g, dg, init, 1e-6, 1000)
 
 ```
+
+The MLE of $\theta$ is 0.0031 with initial value $\tilde{\theta}_n$.
+
+4.
+
+```{r}
+newton(g, dg, 2.7, 1e-6, 1000)
+newton(g, dg, -2.7, 1e-6, 1000)
+```
+The MLE for $\theta$ is 2.8484 with initial value $\theta_0=2.7$; MLE for $\theta$ is -2.6689 starting at $\theta_0=-2.7$.
+
+5.
+
+These MLE's could be classified into 197 groups due to very slight differences. So, I round MLE to 6 decimal places. Since there are at most 46 initial values in one group, I report the minimum and maximum of initial values in each group instead of listing all values in each group. 
+
+```{r}
+init <- seq(-pi, pi, length.out = 200)
+mle <- sapply(init, function(x) newton(g, dg, x, 1e-6, 1000))
+apprmle <- round(mle, digits = 6)
+tab <- as.data.frame(cbind(init, apprmle))
+aggregate(init ~ apprmle, data = tab, FUN = function(x) c(min = min(x), maxi = max(x) ))
+```
+
+
+
+
+
