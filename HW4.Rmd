@@ -25,6 +25,38 @@ theta <- seq(-pi , pi , by = .01)
 logl <- sapply(theta, logL)
 plot(theta, logl)
 
+```
 
+2.
+
+$$E(X|\theta)=\int_0^{2\pi}\frac{x(1-\cos(x-\theta))}{2\pi}dx=\int_0^{2\pi}\frac{x}{2\pi}dx-\int_0^{2\pi}\frac{x\cos(x-\theta)}{2\pi}dx$$
+$$=\frac{x^2}{4\pi}|_{0}^{2\pi}-\frac{x}{2\pi}\sin(x-\theta)|_0^{2\pi}+\int_0^{2\pi}\frac{\sin(x-\theta)}{2\pi}dx$$
+$$=\pi-\sin(-\theta)-\frac{\cos(x-\theta)}{2\pi}|_0^{2\pi}=\pi+\sin\theta$$
+$$\Rightarrow \bar{X}_n=\pi+\sin\tilde{\theta}_n \ \Rightarrow \tilde{\theta}_n=\arcsin(\bar{X}_n-\pi)$$
+
+3.
+
+$$\ell'=\sum_{i=1}^n\frac{\sin(x_i-\theta)}{1-\cos(x_i-\theta)}$$
+$$\ell''=\sum_{i=1}^n\frac{\cos(x_i-\theta)[1-\cos(x_i-\theta)]-[\sin(x_i-\theta)]^2}{[1-\cos(x_i-\theta)]^2}$$
+$$=\sum_{i=1}^n\frac{\cos(x_i-\theta)-1}{[1-\cos(x_i-\theta)]^2}=\sum_{i=1}^n\frac{1}{\cos(x_i-\theta)-1}$$
+
+```{r}
+init <- asin(mean(x) - pi)
+g <- function(theta){
+  sum(sin(theta - x) / (1 - cos(theta - x)))
+}
+dg <- function(theta){
+  sum(1 / (cos(theta - x) - 1))
+}
+newton<- function(fun, dfun, x0, eps, maxit){
+  for (i in 1:maxit) {
+    x1 <- x0 - fun(x0) / dfun(x0)
+    if (abs(x1 - x0) < eps | abs(fun(x1)) < eps)
+      return(x1)
+    x0 <- x1
+  }
+  return(NA)
+}
+newton(g, dg, init, 1e-6, 1000)
 
 ```
