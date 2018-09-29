@@ -106,7 +106,6 @@ I set r and K as the values in the trace of previous iteration. The sum squared 
 
 r <- c(0.15, 0.1275481, 0.1197121, 0.1185102, 0.1183094, 0.1182753, 0.1182696, 0.1182686)
 K <- c(1000, 1005.5576477, 1039.3710445, 1048.3579593, 1049.2521408, 1049.3815481, 1049.4029151, 1049.4065121)
-
 error <- c(164487.9, 86407.24, 73936.64, 73430.59, 73420.01, 73419.71, 73419.7, 73419.7)
 
 z <-  cbind(r, K, error)
@@ -119,3 +118,33 @@ contour(x, y, z, xlab = "r", ylab = "K")
 
 3.
 
+$$f(N_t)=\frac{1}{N_t\sigma\sqrt{2\pi}}\exp(-\frac{(\log N_t-\log (\frac{N_0}{N_0+(K-N_0)e^{-rt}}))^2}{2\sigma^2})$$
+$$\ell=\sum_t\log f(N_t)=\sum_t[-\log(N_t\sigma)-\log(\sqrt{2\pi})-\frac{1}{2\sigma^2}(\log N_t-\log (\frac{N_0}{N_0+(K-N_0)e^{-rt}}))^2]$$
+$$\frac{\partial \ell}{\partial r}=\sum_t\frac{(\log N_t-\log \frac{N_0}{N_0+(K-N_0)e^{-rt}})(K-N_0)e^{-rt}t}{\sigma^2(N_0+(K-N_0)e^{-rt})}$$
+$$\frac{\partial \ell}{\partial K}=\sum_t- \frac{(\log N_t-\log \frac{N_0}{N_0+(K-N_0)e^{-rt}})e^{-rt}}{\sigma^2(N_0+(K-N_0)e^{-rt})}$$
+$$\frac{\partial \ell}{\partial \sigma^2}=\sum_t -\frac{1}{2\sigma^2}+\frac{\log N_t-\log \frac{N_0}{N_0+(K-N_0)e^{-rt}}}{2\sigma^4}$$
+
+```{r}
+N <- beetles$beetles
+t <- beetles$days
+N0 <- N[t==0]
+l <- function(theta){
+  sum(- log(N) -log(theta[3]) / 2 - log(2 * pi)/2 - (log(N) - log(N0 / (N0 + (theta[2] - N0) * exp(- theta[1] * t))))^2 / (2 * theta[3]))
+}
+
+dl <- function(theta){
+  c(sum((log(N) - log(N0 / (N0 + (theta[2] - N0) * exp(- theta[1] * t)))) * (theta[2] - N0) * exp(-theta[1] * t) * t / (theta[3] * (N0 + (theta[2] - N0) * exp(- theta[1] * t)))),
+    sum((log(N)-log(N0 / (N0 + (theta[2] - N0) * exp(- theta[1] * t)))) * exp(-theta[1] * t) / (theta[3] * (N0 + (theta[2] - N0) * exp(- theta[1] * t)))),
+    sum(-1 / (2 * theta[3]) + (log(N)-log(N0 / (N0 + (theta[2] - N0) * exp(- theta[1] * t)))) / (2 * theta[3]^2)))
+}
+
+
+fit <- optim(par = c(.1, 10, 3), l, dl, method = "L-BFGS-B", lower = c(0, 0, 0), control = list(fnscale = -1), hessian = TRUE)
+fit$par
+fit$value
+fit$convergence
+diag(-solve(fit$hessian))
+
+```
+
+I use "L-BFGS-B"method and set lower bound of parameters since they should be non-negative. Then MLE's are $\hat{r}=1.603498$, $\hat{K}=22.121291$, and $\hat{\sigma}^2=6.938461$. Their variance are $var(\hat{r})=042.59925$, $var(\hat{K})=1674.85599$, and $var(\hat{\sigma}^2)=14.20093$.
